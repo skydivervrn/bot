@@ -10,6 +10,8 @@ RUN GOOS=linux GOARCH=386 go build -ldflags="-w -s" -o ${BIN_PATH} \
  && chmod +x /go/bin/bot
 
 FROM scratch 
+ENV APP_OUTPUT_FILE ${APP_OUTPUT_FILE:-"/buffer/app.output"}
+ENV CMD_OUTPUT_FILE ${CMD_OUTPUT_FILE:-"/buffer/cmd.output"}
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /go/bin/bot /go/bin/bot
-ENTRYPOINT ["/go/bin/bot"] 
+ENTRYPOINT ["/go/bin/bot"]
