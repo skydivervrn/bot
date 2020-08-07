@@ -8,12 +8,12 @@ import (
 // Admins struct for export
 type Admins struct {
 	ProductionAdmins []string
-	StageAdmins      []string
+	QA               []string
 }
 
 var (
 	// AdminLists for exporting
-	AdminLists = &Admins{parseStringList(os.Getenv("PRODUCTION_ADMIN_LIST")), []string{}}
+	AdminLists = &Admins{parseStringList(os.Getenv("PRODUCTION_ADMIN_LIST")), parseStringList(os.Getenv("QA_LIST"))}
 )
 
 func parseStringList(str string) []string {

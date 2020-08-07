@@ -14,15 +14,16 @@ import (
 )
 
 var (
-	appOut   = os.Getenv("APP_OUTPUT_FILE")
-	cmdOut   = os.Getenv("CMD_OUTPUT_FILE")
-	answer   []string
-	answerP  = &answer
-	counter  = 1
-	counterP = &counter
-	update   tgbotapi.Update
-	updP     = &update
-	botP     *tgbotapi.BotAPI
+	appOut     = os.Getenv("APP_OUTPUT_FILE")
+	cmdOut     = os.Getenv("CMD_OUTPUT_FILE")
+	answer     []string
+	answerP    = &answer
+	counter    = 1
+	counterP   = &counter
+	update     tgbotapi.Update
+	updP       = &update
+	botP       *tgbotapi.BotAPI
+	qaCommands = []string{"date", "ls", "lscpu"}
 )
 
 // Bot some comment
@@ -51,8 +52,12 @@ func Bot() {
 }
 
 func receiver() {
-	if !accessCheck() {
+	if accessCheck() == 0 {
 		botP.Send(message(fmt.Sprintf("You do not have an access, username: %s", updP.Message.Chat.UserName)))
+		return
+	}
+	if accessCheck() == 2 && !stringInSlice(strings.Split(updP.Message.Text, " ")[0], qaCommands) {
+		botP.Send(message("You can use only commands: 1) date 2) ls 3) lscpu"))
 		return
 	}
 	ctmp := *counterP
@@ -76,11 +81,14 @@ func receiver() {
 	botP.Send(message(fmt.Sprintf("Result is: %s \nError is %s\n", (*answerP)[1], (*answerP)[2])))
 }
 
-func accessCheck() bool {
+func accessCheck() int {
 	if stringInSlice(updP.Message.From.UserName, settings.AdminLists.ProductionAdmins) {
-		return true
+		return 1
 	}
-	return false
+	if stringInSlice(updP.Message.From.UserName, settings.AdminLists.QA) {
+		return 2
+	}
+	return 0
 }
 
 func message(text string) tgbotapi.MessageConfig {
